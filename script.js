@@ -259,42 +259,35 @@ function parseLog(text) {
   const out = buildOutput(doc);
   const wrapper = out.body.querySelector(".wrapper");
   const articles = doc.querySelectorAll("article.p-bl__session-post");
-  function formatDiceExpression(labelNode) {
-    // ダイス式を組み立てる（例：100 D 100 → 1D100）
-    if (!labelNode) return "";
 
-    const nums = labelNode.querySelectorAll(".p-exp__number");
-    const op = labelNode.querySelector(".p-exp__operator");
+  function formatDiceExpression(exprNode) {
+    if (!exprNode) return { formula: "", result: "" };
 
-    if (nums.length === 2 && op) {
-      const left = nums[0].textContent.trim();
-      const operator = op.textContent.trim();
-      const right = nums[1].textContent.trim();
+    const label = exprNode.querySelector(".p-exp__dice-exp");
+    const resultImg = exprNode.querySelector(".p-exp__dice-result img");
+    const resultNum = exprNode.querySelector(".p-exp__number:last-of-type");
 
-      // 特例：100 D 100 は 1D100 に変換
-      if (left === "100" && right === "100" && operator === "D") {
-        return "1D100";
+    let formula = "";
+    let result = "";
+
+    if (label) {
+      const nums = label.querySelectorAll(".p-exp__number");
+      const op = label.querySelector(".p-exp__operator");
+      if (nums.length === 2 && op) {
+        const left = nums[0].textContent.trim();
+        const operator = op.textContent.trim();
+        const right = nums[1].textContent.trim();
+        formula = `${left}${operator}${right}`;
       }
-
-      return `${left}${operator}${right}`;
     }
 
-    return "";
-  }
-
-  function formatDiceExpression(labelNode) {
-    if (!labelNode) return "";
-
-    const nums = labelNode.querySelectorAll(".p-exp__number");
-    const op = labelNode.querySelector(".p-exp__operator");
-
-    if (nums.length === 2 && op) {
-      const left = nums[0].textContent.trim();
-      const operator = op.textContent.trim();
-      const right = nums[1].textContent.trim();
-      return `${left}${operator}${right}`;
+    if (resultImg) {
+      result = resultImg.getAttribute("alt") || "";
+    } else if (resultNum) {
+      result = resultNum.textContent.trim();
     }
-    return "";
+
+    return { formula, result };
   }
 
   articles.forEach((a, idx) => {
@@ -321,12 +314,7 @@ function parseLog(text) {
     } else if (expr) {
       name = `ダイス結果（${nameRaw}）`;
       cls = "main";
-
-      const label = expr.querySelector(".p-exp__dice-exp");
-      const resultElem = expr.querySelectorAll(".p-exp__number")[1]; // 出目結果が入ってる想定
-      const result = resultElem ? resultElem.textContent.trim() : "";
-
-      const formula = formatDiceExpression(label);
+      const { formula, result } = formatDiceExpression(expr);
       text = formula && result ? `${formula}=${result}` : "[ダイス結果不明]";
     } else {
       return;
