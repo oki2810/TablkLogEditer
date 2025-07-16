@@ -243,7 +243,7 @@ const hideScript = `const Hide = (checkbox) => {
   }
 }`;
 
-let outputHTML = '';
+let outputHTML = "";
 
 function buildOutput(doc) {
   const out = document.implementation.createHTMLDocument(doc.title);
@@ -255,53 +255,118 @@ function buildOutput(doc) {
 
 function parseLog(text) {
   const parser = new DOMParser();
-  const doc = parser.parseFromString(text, 'text/html');
+  const doc = parser.parseFromString(text, "text/html");
   const out = buildOutput(doc);
-  const wrapper = out.body.querySelector('.wrapper');
-  const articles = doc.querySelectorAll('article.p-bl__session-post');
-  articles.forEach((a, idx) => {
-    const nameSpan = a.querySelector('header span');
-    const name = nameSpan ? nameSpan.textContent.trim() : '';
-    const color = nameSpan ? nameSpan.style.color || '#222' : '#222';
-    const p = a.querySelector('p');
-    if (!p) return;
-    const text = p.textContent.trim();
-    const dl = out.createElement('dl');
-    dl.setAttribute('style', `color: ${color};`);
-    let cls = 'main';
-    if (p.classList.contains('p-sp__narration-container')) {
-      cls = 'zatsudan';
+  const wrapper = out.body.querySelector(".wrapper");
+  const articles = doc.querySelectorAll("article.p-bl__session-post");
+  function formatDiceExpression(labelNode) {
+    // ダイス式を組み立てる（例：100 D 100 → 1D100）
+    if (!labelNode) return "";
+
+    const nums = labelNode.querySelectorAll(".p-exp__number");
+    const op = labelNode.querySelector(".p-exp__operator");
+
+    if (nums.length === 2 && op) {
+      const left = nums[0].textContent.trim();
+      const operator = op.textContent.trim();
+      const right = nums[1].textContent.trim();
+
+      // 特例：100 D 100 は 1D100 に変換
+      if (left === "100" && right === "100" && operator === "D") {
+        return "1D100";
+      }
+
+      return `${left}${operator}${right}`;
     }
+
+    return "";
+  }
+
+  function formatDiceExpression(labelNode) {
+    if (!labelNode) return "";
+
+    const nums = labelNode.querySelectorAll(".p-exp__number");
+    const op = labelNode.querySelector(".p-exp__operator");
+
+    if (nums.length === 2 && op) {
+      const left = nums[0].textContent.trim();
+      const operator = op.textContent.trim();
+      const right = nums[1].textContent.trim();
+      return `${left}${operator}${right}`;
+    }
+    return "";
+  }
+
+  articles.forEach((a, idx) => {
+    const nameSpan = a.querySelector("header span");
+    const nameRaw = nameSpan ? nameSpan.textContent.trim() : "";
+    const color = nameSpan ? nameSpan.style.color || "#222" : "#222";
+
+    let name = nameRaw;
+    let text = "";
+    let cls = "main";
+
+    const p = a.querySelector("p");
+    const expr = a.querySelector(".p-expression");
+
+    if (p && p.textContent.trim()) {
+      text = p.textContent.trim();
+
+      if (p.classList.contains("p-sp__narration-container")) {
+        cls = "zatsudan";
+      }
+      if (nameRaw === "GM") {
+        cls = "group tab_0";
+      }
+    } else if (expr) {
+      name = `ダイス結果（${nameRaw}）`;
+      cls = "main";
+
+      const label = expr.querySelector(".p-exp__dice-exp");
+      const resultElem = expr.querySelectorAll(".p-exp__number")[1]; // 出目結果が入ってる想定
+      const result = resultElem ? resultElem.textContent.trim() : "";
+
+      const formula = formatDiceExpression(label);
+      text = formula && result ? `${formula}=${result}` : "[ダイス結果不明]";
+    } else {
+      return;
+    }
+
+    const dl = out.createElement("dl");
+    dl.setAttribute("style", `color: ${color};`);
     dl.className = cls;
-    const dt = out.createElement('dt');
+
+    const dt = out.createElement("dt");
     dt.textContent = name;
-    const dd = out.createElement('dd');
+    const dd = out.createElement("dd");
     dd.textContent = text;
+
     dl.appendChild(dt);
     dl.appendChild(dd);
     wrapper.appendChild(dl);
   });
-  outputHTML = '<!DOCTYPE html>\n' + out.documentElement.outerHTML;
+
+  outputHTML = "<!DOCTYPE html>\n" + out.documentElement.outerHTML;
 }
 
 function handleFix() {
-  const file = document.getElementById('logFile').files[0];
+  const file = document.getElementById("logFile").files[0];
   if (!file) {
-    alert('log.html を選択してください');
+    alert("log.html を選択してください");
     return;
   }
   const reader = new FileReader();
   reader.onload = () => {
     parseLog(reader.result);
-    const blob = new Blob([outputHTML], { type: 'text/html' });
+    const blob = new Blob([outputHTML], { type: "text/html" });
     const url = URL.createObjectURL(blob);
-    const dl = document.getElementById('downloadBtn');
+    const dl = document.getElementById("downloadBtn");
     dl.href = url;
-    dl.classList.remove('d-none');
+    dl.classList.remove("d-none");
   };
   reader.readAsText(file);
 }
 
-window.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('fixBtn').addEventListener('click', handleFix);
+window.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("fixBtn").addEventListener("click", handleFix);
 });
