@@ -305,7 +305,7 @@ function parseLog(text) {
     if (p && p.textContent.trim()) {
       text = p.textContent.trim();
 
-      if (p.classList.contains("p-sp__narration-container")) {
+      if (p.classList.contains("p-bl__sp__container")) {
         cls = "zatsudan";
       }
       if (nameRaw === "GM") {
