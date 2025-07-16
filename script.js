@@ -297,7 +297,7 @@ function parseLog(text) {
 
     let name = nameRaw;
     let text = "";
-    let cls = "main";
+    let cls = "zatsudan";
 
     const p = a.querySelector("p");
     const expr = a.querySelector(".p-expression");
@@ -305,8 +305,8 @@ function parseLog(text) {
     if (p && p.textContent.trim()) {
       text = p.textContent.trim();
 
-      if (p.classList.contains("p-bl__sp__container")) {
-        cls = "zatsudan";
+      if (p.classList.contains("p-sp__spoken-container")) {
+        cls = "main";
       }
       if (nameRaw === "GM") {
         cls = "group tab_0";
