@@ -289,17 +289,16 @@ function parseLog(text) {
   }
 
   articles.forEach((a, idx) => {
-    const nameRaw = nameClass ? nameClass.textContent.trim() : "";
-
-    let name = nameRaw;
-    let text = "";
-    let cls = "zatsudan";
-
     const p = a.querySelector("p");
     const span = a.querySelector(".act_role_as");
     const spokenDiv = a.querySelector("div.p-sp__spoken-container");
     const expr = a.querySelector(".p-expression");
+    const spanName = span ? span.textContent.trim() : "";
     const spanColor = span ? getComputedStyle(span).color : "";
+
+    let name = spanName;
+    let text = "";
+    let cls = "zatsudan";
 
     if (p && p.textContent.trim()) {
       text = p.textContent.trim();
@@ -307,11 +306,11 @@ function parseLog(text) {
       if (spokenDiv || span) {
         cls = "main";
       }
-      if (nameRaw === "GM") {
+      if (spanName === "GM") {
         cls = "group tab_0";
       }
     } else if (expr) {
-      name = `${nameRaw}`;
+      name = `${spanName}`;
       cls = "main";
       const { formula, result } = formatDiceExpression(expr);
       text = formula && result ? `${formula}=${result}` : "[ダイス結果不明]";
