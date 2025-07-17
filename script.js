@@ -198,6 +198,7 @@ const style2 = `
   background-color: #fffddf;
   border-color: #cd2b2b;
   width: 85%;
+  margin: 0 0 0 AUTO;
 }
 
 .tab_0.selected {
