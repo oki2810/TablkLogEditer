@@ -146,7 +146,7 @@ dt {
 
 dd {
   display: block;
-  width: calc(100% - 130px);
+  width: calc(100% - 140px);
   margin: 0;
   padding: 2px;
   float: right;
