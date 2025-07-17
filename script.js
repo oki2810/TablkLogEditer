@@ -249,7 +249,7 @@ function buildOutput(doc) {
   const out = document.implementation.createHTMLDocument(doc.title);
   out.head.innerHTML = `<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>${doc.title}</title><style>${style1}</style><style>${style2}</style>`;
   const body = out.body;
-  body.innerHTML = `<label for="toggle" id="label_toggle">表示/非表示</label><input type="checkbox" id="toggle"><header><label>▽ 非表示にするタブ</label><label for="main"><input type="checkbox" onclick="Hide(this)" id="main">メイン</label><label for="zatsudan"><input type="checkbox" onclick="Hide(this)" id="zatsudan">雑談</label><label for="tab_0"><input type="checkbox" onclick="Hide(this)" id="tab_0">GM発言</label></header><div class="wrapper"><h1>${doc.title}</h1><h2>セッション開始</h2></div><footer></footer><script>${hideScript}</script>`;
+  body.innerHTML = `<label for="toggle" id="label_toggle">表示/非表示</label><input type="checkbox" id="toggle"><header><label>▽ 非表示にするタブ</label><label for="main"><input type="checkbox" onclick="Hide(this)" id="main">発言</label><label for="zatsudan"><input type="checkbox" onclick="Hide(this)" id="zatsudan">ノーマル</label><label for="tab_0"><input type="checkbox" onclick="Hide(this)" id="tab_0">GM発言</label></header><div class="wrapper"><h1>${doc.title}</h1><h2>セッション開始</h2></div><footer></footer><script>${hideScript}</script>`;
   return out;
 }
 
@@ -308,7 +308,7 @@ function parseLog(text) {
 
     if (p && p.textContent.trim()) {
       text = p.textContent.trim();
-      if (spokenDiv || span) cls = "main";
+      if (spokenDiv) cls = "main";
       if (spanName === "GM") cls = "group tab_0";
     } else if (expr) {
       cls = "main";
