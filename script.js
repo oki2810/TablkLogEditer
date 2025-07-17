@@ -285,7 +285,6 @@ function parseLog(text) {
     if (pip) {
       result = pip.textContent.trim();
     }
-
     return { formula, result };
   }
 
@@ -326,7 +325,7 @@ function parseLog(text) {
     if (p && p.textContent.trim()) {
       text = p.textContent.trim();
 
-      if (p.classList.contains("p-sp__spoken-container")) {
+      if (div.classList.contains("p-sp__spoken-container")) {
         cls = "main";
       }
       if (nameRaw === "GM") {
