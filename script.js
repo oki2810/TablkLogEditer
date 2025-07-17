@@ -288,28 +288,28 @@ function parseLog(text) {
     return { formula, result };
   }
 
-  articles.forEach((a, idx) => {
+  articles.forEach((a) => {
+    const span =
+      a.querySelector("span.act_role_as") || a.querySelector(".p-sp__name");
+    const spanName = span ? span.textContent.trim() : "";
+
+    let spanColor = "";
+    if (span) {
+      spanColor =
+        span.style.color || getComputedStyle(span).getPropertyValue("color");
+    }
+
     const p = a.querySelector("p");
-    const span = a.querySelector(".p-sp__name");
     const spokenDiv = a.querySelector("div.p-sp__spoken-container");
     const expr = a.querySelector(".p-expression");
-    const spanName = span ? span.textContent.trim() : "";
-    const spanColor = span.style.color;
-    console.log("spanColor →", spanColor);
 
-    let name = spanName;
     let text = "";
     let cls = "zatsudan";
 
     if (p && p.textContent.trim()) {
       text = p.textContent.trim();
-
-      if (spokenDiv) {
-        cls = "main";
-      }
-      if (spanName === "GM") {
-        cls = "group tab_0";
-      }
+      if (spokenDiv || span) cls = "main";
+      if (spanName === "GM") cls = "group tab_0";
     } else if (expr) {
       cls = "main";
       const { formula, result } = formatDiceExpression(expr);
@@ -319,7 +319,9 @@ function parseLog(text) {
     }
 
     const dl = out.createElement("dl");
-    dl.style.color = spanColor;
+    if (spanColor) {
+      dl.style.color = spanColor;
+    }
     dl.className = cls;
 
     const dt = out.createElement("dt");
