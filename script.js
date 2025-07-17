@@ -311,7 +311,7 @@ function parseLog(text) {
       if (spokenDiv) cls = "main";
       if (spanName === "GM") cls = "group tab_0";
     } else if (expr) {
-      cls = "main";
+      cls = "main tab_2";
       const { formula, result } = formatDiceExpression(expr);
       text = formula && result ? `${formula}=${result}` : "[ダイス結果不明]";
     } else {
