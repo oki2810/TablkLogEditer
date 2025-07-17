@@ -291,6 +291,7 @@ function parseLog(text) {
   articles.forEach((a, idx) => {
     const nameSpan = a.querySelector("header span");
     const nameRaw = nameSpan ? nameSpan.textContent.trim() : "";
+    const color = nameSpan && nameSpan.style && nameSpan.style.color ? nameSpan.style.color : "#000";
 
     let name = nameRaw;
     let text = "";
@@ -320,7 +321,7 @@ function parseLog(text) {
     }
 
     const dl = out.createElement("dl");
-    dl.setAttribute("style", `color: ${color};`);
+    dl.style.color = color;
     dl.className = cls;
 
     const dt = out.createElement("dt");
