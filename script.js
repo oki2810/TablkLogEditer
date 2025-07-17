@@ -197,6 +197,7 @@ const style2 = `
 .tab_0 {
   background-color: #fffddf;
   border-color: #cd2b2b;
+  width: 85%;
 }
 
 .tab_0.selected {
