@@ -141,7 +141,6 @@ dt {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  border-right: 1px solid #d6d6d6; 
 }
 
 dd {
@@ -197,8 +196,6 @@ const style2 = `
 .tab_0 {
   background-color: #fffddf;
   border-color: #cd2b2b;
-  width: 85%;
-  margin: 0 0 0 AUTO;
 }
 
 .tab_0.selected {
