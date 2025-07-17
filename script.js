@@ -153,7 +153,7 @@ dd {
 }
 
 .zatsudan {
-  width: 95%;
+  width: 85%;
   margin: 0 0 0 AUTO;
   background: #f7f7f7;
   border-left: 1px solid #CCCCCC;
@@ -291,10 +291,14 @@ function parseLog(text) {
   articles.forEach((a, idx) => {
     const p = a.querySelector("p");
     const span = a.querySelector(".p-sp__name");
+    if (!span) {
+      console.warn("span が取れていません");
+    }
     const spokenDiv = a.querySelector("div.p-sp__spoken-container");
     const expr = a.querySelector(".p-expression");
     const spanName = span ? span.textContent.trim() : "";
     const spanColor = span ? getComputedStyle(span).color : "";
+    console.log("spanColor →", spanColor);
 
     let name = spanName;
     let text = "";
