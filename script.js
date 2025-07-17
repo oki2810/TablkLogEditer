@@ -314,7 +314,6 @@ function parseLog(text) {
           b = parseInt(hex.slice(4, 6), 16);
         }
       }
-
       if (r != null && g != null && b != null) {
         return (r + g + b) / 3;
       }
@@ -322,9 +321,9 @@ function parseLog(text) {
     }
 
     const defaultColor = "#222222";
-    const rawColor = nameSpan?.style.color || defaultColor;
-    const brightness = getBrightness(rawColor);
-    const color = brightness > 80 ? defaultColor : rawColor;
+    const computedColor = window.getComputedStyle(nameSpan).color;
+    const brightness = getBrightness(computedColor);
+    const color = brightness > 150 ? defaultColor : computedColor;
 
     let name = nameRaw;
     let text = "";
