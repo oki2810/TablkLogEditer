@@ -292,6 +292,22 @@ function parseLog(text) {
     const nameSpan = a.querySelector("header span");
     const nameRaw = nameSpan ? nameSpan.textContent.trim() : "";
 
+    function parseColorToHex(colorStr) {
+      colorStr = colorStr.trim().toLowerCase();
+      const rgbMatch = colorStr.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+      if (rgbMatch) {
+        const [r, g, b] = rgbMatch.slice(1, 4).map((n) => parseInt(n, 10));
+        return (
+          "#" + [r, g, b].map((v) => v.toString(16).padStart(2, "0")).join("")
+        );
+      }
+      if (/^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(colorStr)) {
+        return colorStr;
+      }
+      // その他の形式（named colorなど）は黒に
+      return "#000000";
+    }
+
     function hexToLuminance(hex) {
       if (!hex || !/^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(hex)) return 0;
 
@@ -303,13 +319,13 @@ function parseLog(text) {
       const g = parseInt(hex.slice(3, 5), 16) / 255;
       const b = parseInt(hex.slice(5, 7), 16) / 255;
 
-      // sRGB luminance formula
-      const luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b;
-      return luminance;
+      return 0.2126 * r + 0.7152 * g + 0.0722 * b;
     }
 
-    const defaultColor = "#686868ff";
-    const maidColor = nameSpan?.style.color?.trim() || defaultColor;
+    // 使用部
+    const defaultColor = "#686868";
+    const rawColor = nameSpan?.style.color || defaultColor;
+    const maidColor = parseColorToHex(rawColor);
     const color =
       hexToLuminance(maidColor) > hexToLuminance(defaultColor)
         ? defaultColor
