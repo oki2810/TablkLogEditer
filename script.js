@@ -264,12 +264,12 @@ function parseLog(text) {
     if (!exprNode) return { formula: "", result: "" };
 
     const label = exprNode.querySelector(".p-exp__dice-exp");
-    const resultImg = exprNode.querySelector(".p-exp__dice-result img");
-    const resultNum = exprNode.querySelector(".p-exp__number:last-of-type");
+    const pip = exprNode.querySelector(".p-exp__pip");
 
     let formula = "";
     let result = "";
 
+    // ダイス式の抽出
     if (label) {
       const nums = label.querySelectorAll(".p-exp__number");
       const op = label.querySelector(".p-exp__operator");
@@ -281,10 +281,9 @@ function parseLog(text) {
       }
     }
 
-    if (resultImg) {
-      result = resultImg.getAttribute("alt") || "";
-    } else if (resultNum) {
-      result = resultNum.textContent.trim();
+    // 出目の抽出
+    if (pip) {
+      result = pip.textContent.trim();
     }
 
     return { formula, result };
@@ -293,7 +292,29 @@ function parseLog(text) {
   articles.forEach((a, idx) => {
     const nameSpan = a.querySelector("header span");
     const nameRaw = nameSpan ? nameSpan.textContent.trim() : "";
-    const color = nameSpan ? nameSpan.style.color || "#222" : "#222";
+
+    function hexToLuminance(hex) {
+      if (!hex || !/^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(hex)) return 0;
+
+      if (hex.length === 4) {
+        hex = "#" + [...hex.slice(1)].map((c) => c + c).join("");
+      }
+
+      const r = parseInt(hex.slice(1, 3), 16) / 255;
+      const g = parseInt(hex.slice(3, 5), 16) / 255;
+      const b = parseInt(hex.slice(5, 7), 16) / 255;
+
+      // sRGB luminance formula
+      const luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+      return luminance;
+    }
+
+    const defaultColor = "#686868ff";
+    const maidColor = nameSpan?.style.color?.trim() || defaultColor;
+    const color =
+      hexToLuminance(maidColor) > hexToLuminance(defaultColor)
+        ? defaultColor
+        : maidColor;
 
     let name = nameRaw;
     let text = "";
@@ -312,7 +333,7 @@ function parseLog(text) {
         cls = "group tab_0";
       }
     } else if (expr) {
-      name = `ダイス結果（${nameRaw}）`;
+      name = `${nameRaw}`;
       cls = "main";
       const { formula, result } = formatDiceExpression(expr);
       text = formula && result ? `${formula}=${result}` : "[ダイス結果不明]";
