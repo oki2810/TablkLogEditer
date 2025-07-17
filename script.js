@@ -320,12 +320,13 @@ function parseLog(text) {
     let cls = "zatsudan";
 
     const p = a.querySelector("p");
+    const spokenDiv = a.querySelector("div.p-sp__spoken-container");
     const expr = a.querySelector(".p-expression");
 
     if (p && p.textContent.trim()) {
       text = p.textContent.trim();
 
-      if (div.classList.contains("p-sp__spoken-container")) {
+      if (spokenDiv) {
         cls = "main";
       }
       if (nameRaw === "GM") {
