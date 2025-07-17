@@ -292,44 +292,39 @@ function parseLog(text) {
     const nameSpan = a.querySelector("header span");
     const nameRaw = nameSpan ? nameSpan.textContent.trim() : "";
 
-    function parseColorToHex(colorStr) {
-      colorStr = colorStr.trim().toLowerCase();
-      const rgbMatch = colorStr.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)/);
-      if (rgbMatch) {
-        const [r, g, b] = rgbMatch.slice(1, 4).map((n) => parseInt(n, 10));
-        return (
-          "#" + [r, g, b].map((v) => v.toString(16).padStart(2, "0")).join("")
-        );
+    function getBrightness(colorStr) {
+      let r, g, b;
+
+      if (colorStr.startsWith("rgb")) {
+        const rgb = colorStr.match(/\d+/g);
+        if (rgb && rgb.length >= 3) {
+          [r, g, b] = rgb.map(Number);
+        }
+      } else if (colorStr.startsWith("#")) {
+        let hex = colorStr.slice(1);
+        if (hex.length === 3) {
+          hex = hex
+            .split("")
+            .map((c) => c + c)
+            .join("");
+        }
+        if (hex.length === 6) {
+          r = parseInt(hex.slice(0, 2), 16);
+          g = parseInt(hex.slice(2, 4), 16);
+          b = parseInt(hex.slice(4, 6), 16);
+        }
       }
-      if (/^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(colorStr)) {
-        return colorStr;
+
+      if (r != null && g != null && b != null) {
+        return (r + g + b) / 3;
       }
-      // その他の形式（named colorなど）は黒に
-      return "#000000";
+      return 0;
     }
 
-    function hexToLuminance(hex) {
-      if (!hex || !/^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(hex)) return 0;
-
-      if (hex.length === 4) {
-        hex = "#" + [...hex.slice(1)].map((c) => c + c).join("");
-      }
-
-      const r = parseInt(hex.slice(1, 3), 16) / 255;
-      const g = parseInt(hex.slice(3, 5), 16) / 255;
-      const b = parseInt(hex.slice(5, 7), 16) / 255;
-
-      return 0.2126 * r + 0.7152 * g + 0.0722 * b;
-    }
-
-    // 使用部
-    const defaultColor = "#686868";
+    const defaultColor = "#222222";
     const rawColor = nameSpan?.style.color || defaultColor;
-    const maidColor = parseColorToHex(rawColor);
-    const color =
-      hexToLuminance(maidColor) > hexToLuminance(defaultColor)
-        ? defaultColor
-        : maidColor;
+    const brightness = getBrightness(rawColor);
+    const color = brightness > 80 ? defaultColor : rawColor;
 
     let name = nameRaw;
     let text = "";
