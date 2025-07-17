@@ -305,17 +305,17 @@ function parseLog(text) {
     const spokenDiv = a.querySelector(".p-sp__spoken-container");
     const expr = a.querySelector(".p-expression");
 
-    let text = "";
+    let html = "";
     let cls = "zatsudan";
 
     if (p && p.textContent.trim()) {
-      text = p.textContent.trim();
+      html = p.innerHTML.trim();
       if (spokenDiv) cls = "main";
       if (spanName === "GM") cls = "main";
     } else if (expr) {
       cls = "main tab_2";
       const { formula, result } = formatDiceExpression(expr);
-      text = formula && result ? `${formula}=${result}` : "[ダイス結果不明]";
+      html = formula && result ? `${formula}=${result}` : "[ダイス結果不明]";
     } else {
       return;
     }
@@ -329,7 +329,7 @@ function parseLog(text) {
     const dt = out.createElement("dt");
     dt.textContent = spanName;
     const dd = out.createElement("dd");
-    dd.textContent = text;
+    dd.innerHTML = html;
 
     dl.appendChild(dt);
     dl.appendChild(dd);
