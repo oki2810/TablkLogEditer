@@ -134,7 +134,7 @@ dt {
   font-size: 0.8em;
   font-weight: bold;
   float: left;
-  width: 100px;
+  width: 110px;
   margin: 0;
   padding: 5px 8px;
   text-align: right;
@@ -146,7 +146,7 @@ dt {
 
 dd {
   display: block;
-  width: calc(100% - 120px);
+  width: calc(100% - 130px);
   margin: 0;
   padding: 2px;
   float: right;
