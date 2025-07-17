@@ -265,7 +265,7 @@ function parseLog(text) {
 
     const label = exprNode.querySelector(".p-exp__dice-exp");
     const resultImg = exprNode.querySelector(".p-exp__dice-result img");
-    const resultNum = exprNode.querySelector(".p-exp__number:last-of-type");
+    const resultNum = exprNode.querySelector(".p-exp__element");
 
     let formula = "";
     let result = "";
@@ -286,7 +286,6 @@ function parseLog(text) {
     } else if (resultNum) {
       result = resultNum.textContent.trim();
     }
-
     return { formula, result };
   }
 
@@ -312,7 +311,7 @@ function parseLog(text) {
         cls = "group tab_0";
       }
     } else if (expr) {
-      name = `ダイス結果（${nameRaw}）`;
+      name = `${nameRaw}`;
       cls = "main";
       const { formula, result } = formatDiceExpression(expr);
       text = formula && result ? `${formula}=${result}` : "[ダイス結果不明]";
