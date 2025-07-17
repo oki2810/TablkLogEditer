@@ -289,22 +289,22 @@ function parseLog(text) {
   }
 
   articles.forEach((a, idx) => {
-    const nameSpan = a.querySelector("header span");
-    const nameRaw = nameSpan ? nameSpan.textContent.trim() : "";
+    const nameRaw = nameClass ? nameClass.textContent.trim() : "";
 
     let name = nameRaw;
+    const spanColor = span ? getComputedStyle(span).color : "";
     let text = "";
     let cls = "zatsudan";
 
     const p = a.querySelector("p");
-    const actspan = a.querySelector(".act_role_as");
+    const span = a.querySelector(".act_role_as");
     const spokenDiv = a.querySelector("div.p-sp__spoken-container");
     const expr = a.querySelector(".p-expression");
 
     if (p && p.textContent.trim()) {
       text = p.textContent.trim();
 
-      if (spokenDiv || actspan) {
+      if (spokenDiv || span) {
         cls = "main";
       }
       if (nameRaw === "GM") {
@@ -320,7 +320,7 @@ function parseLog(text) {
     }
 
     const dl = out.createElement("dl");
-    dl.setAttribute("style", `color: ${color};`);
+    dl.style.color = spanColor;
     dl.className = cls;
 
     const dt = out.createElement("dt");
