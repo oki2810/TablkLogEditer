@@ -291,13 +291,10 @@ function parseLog(text) {
   articles.forEach((a, idx) => {
     const p = a.querySelector("p");
     const span = a.querySelector(".p-sp__name");
-    if (!span) {
-      console.warn("span が取れていません");
-    }
     const spokenDiv = a.querySelector("div.p-sp__spoken-container");
     const expr = a.querySelector(".p-expression");
     const spanName = span ? span.textContent.trim() : "";
-    const spanColor = span ? getComputedStyle(span).color : "";
+    const spanColor = span.style.color;
     console.log("spanColor →", spanColor);
 
     let name = spanName;
