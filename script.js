@@ -136,12 +136,12 @@ dt {
   float: left;
   width: 100px;
   margin: 0;
-  padding: 5px 5px;
+  padding: 5px 8px;
   text-align: right;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  border-right: 1px solid #aaaaaa; 
+  border-right: 1px solid #d6d6d6; 
 }
 
 dd {
