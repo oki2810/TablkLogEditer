@@ -325,7 +325,7 @@ function parseLog(text) {
     dl.className = cls;
 
     const dt = out.createElement("dt");
-    dt.textContent = name;
+    dt.textContent = spanName;
     const dd = out.createElement("dd");
     dd.textContent = text;
 
