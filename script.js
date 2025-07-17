@@ -347,7 +347,9 @@ function handleFix() {
     const blob = new Blob([outputHTML], { type: "text/html" });
     const url = URL.createObjectURL(blob);
     const dl = document.getElementById("downloadBtn");
+    const filename = file.name.replace(/\.html?$/, '') + '_fixed.html';
     dl.href = url;
+    dl.download = filename;
     dl.classList.remove("d-none");
   };
   reader.readAsText(file);
