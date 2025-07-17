@@ -292,51 +292,19 @@ function parseLog(text) {
     const nameSpan = a.querySelector("header span");
     const nameRaw = nameSpan ? nameSpan.textContent.trim() : "";
 
-    function getBrightness(colorStr) {
-      let r, g, b;
-
-      if (colorStr.startsWith("rgb")) {
-        const rgb = colorStr.match(/\d+/g);
-        if (rgb && rgb.length >= 3) {
-          [r, g, b] = rgb.map(Number);
-        }
-      } else if (colorStr.startsWith("#")) {
-        let hex = colorStr.slice(1);
-        if (hex.length === 3) {
-          hex = hex
-            .split("")
-            .map((c) => c + c)
-            .join("");
-        }
-        if (hex.length === 6) {
-          r = parseInt(hex.slice(0, 2), 16);
-          g = parseInt(hex.slice(2, 4), 16);
-          b = parseInt(hex.slice(4, 6), 16);
-        }
-      }
-      if (r != null && g != null && b != null) {
-        return (r + g + b) / 3;
-      }
-      return 0;
-    }
-
-    const defaultColor = "#222222";
-    const computedColor = window.getComputedStyle(nameSpan).color;
-    const brightness = getBrightness(computedColor);
-    const color = brightness > 150 ? defaultColor : computedColor;
-
     let name = nameRaw;
     let text = "";
     let cls = "zatsudan";
 
     const p = a.querySelector("p");
+    const actspan = a.querySelector(".act_role_as");
     const spokenDiv = a.querySelector("div.p-sp__spoken-container");
     const expr = a.querySelector(".p-expression");
 
     if (p && p.textContent.trim()) {
       text = p.textContent.trim();
 
-      if (spokenDiv) {
+      if (spokenDiv || actspan) {
         cls = "main";
       }
       if (nameRaw === "GM") {
