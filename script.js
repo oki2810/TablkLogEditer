@@ -300,7 +300,7 @@ function parseLog(text) {
     }
 
     const p = a.querySelector("p");
-    const spokenDiv = a.querySelector("div.p-sp__spoken-container");
+    const spokenDiv = a.querySelector(".p-sp__spoken-container");
     const expr = a.querySelector(".p-expression");
 
     let text = "";
