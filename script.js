@@ -290,7 +290,7 @@ function parseLog(text) {
 
   articles.forEach((a, idx) => {
     const p = a.querySelector("p");
-    const span = a.querySelector(".act_role_as");
+    const span = a.querySelector(".p-sp__name");
     const spokenDiv = a.querySelector("div.p-sp__spoken-container");
     const expr = a.querySelector(".p-expression");
     const spanName = span ? span.textContent.trim() : "";
@@ -303,14 +303,13 @@ function parseLog(text) {
     if (p && p.textContent.trim()) {
       text = p.textContent.trim();
 
-      if (spokenDiv || span) {
+      if (spokenDiv) {
         cls = "main";
       }
       if (spanName === "GM") {
         cls = "group tab_0";
       }
     } else if (expr) {
-      name = `${spanName}`;
       cls = "main";
       const { formula, result } = formatDiceExpression(expr);
       text = formula && result ? `${formula}=${result}` : "[ダイス結果不明]";
