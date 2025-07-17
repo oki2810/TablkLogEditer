@@ -194,6 +194,10 @@ dd {
 
 const style2 = `
 .tab_0 {
+  background-color: #fffddf;
+  border-color: #cd2b2b;
+  width: 85%;
+  margin: 0 0 0 AUTO;
 }
 
 .tab_0.selected {
@@ -307,7 +311,7 @@ function parseLog(text) {
     if (p && p.textContent.trim()) {
       text = p.textContent.trim();
       if (spokenDiv) cls = "main";
-      if (spanName === "GM") cls = "group tab_0";
+      if (spanName === "GM") cls = "main";
     } else if (expr) {
       cls = "main tab_2";
       const { formula, result } = formatDiceExpression(expr);
