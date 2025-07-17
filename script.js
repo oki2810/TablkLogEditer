@@ -292,7 +292,6 @@ function parseLog(text) {
     const nameRaw = nameClass ? nameClass.textContent.trim() : "";
 
     let name = nameRaw;
-    const spanColor = span ? getComputedStyle(span).color : "";
     let text = "";
     let cls = "zatsudan";
 
@@ -300,6 +299,7 @@ function parseLog(text) {
     const span = a.querySelector(".act_role_as");
     const spokenDiv = a.querySelector("div.p-sp__spoken-container");
     const expr = a.querySelector(".p-expression");
+    const spanColor = span ? getComputedStyle(span).color : "";
 
     if (p && p.textContent.trim()) {
       text = p.textContent.trim();
