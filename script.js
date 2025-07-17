@@ -141,7 +141,7 @@ dt {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  border-right: 1px solid #252525; 
+  border-right: 1px solid #aaaaaa; 
 }
 
 dd {
