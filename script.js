@@ -275,22 +275,20 @@ function parseLog(text) {
         const left = nums[0].textContent.trim();
         const operator = op.textContent.trim();
         const right = nums[1].textContent.trim();
-        formula = `${left}${operator}${right}`;
+        formula = `${left}${operator}${right}`; // 例: "2D8"
       }
     }
 
     // --- 出目の抽出（複数ロール対応） ---
-    const pipEls = exprNode.querySelectorAll(".p-exp__pip");
     let result = "";
+    const pipEls = exprNode.querySelectorAll(".p-exp__pip");
     if (pipEls.length > 0) {
-      // 各出目を数値化して合計
-      const rolls = Array.from(
-        pipEls,
-        (el) => parseInt(el.textContent.trim(), 10) || 0
-      );
-      const total = rolls.reduce((sum, v) => sum + v, 0);
-      result = total.toString();
+      const total = Array.from(pipEls)
+        .map((el) => parseInt(el.textContent.trim(), 10) || 0)
+        .reduce((sum, n) => sum + n, 0);
+      result = String(total); // 例: "7"
     }
+
     return { formula, result };
   }
 
