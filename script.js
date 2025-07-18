@@ -256,12 +256,13 @@ function buildOutput(doc) {
 }
 
 function parseLog(text) {
+  // 1) パースして出力用ドキュメントを組み立て
   const parser = new DOMParser();
   const doc = parser.parseFromString(text, "text/html");
-  const out = buildOutput(doc);
+  const out = buildOutput(doc); // out は Document オブジェクト想定
   const wrapper = out.body.querySelector(".wrapper");
-  const articles = doc.querySelectorAll("article.p-bl__session-post");
 
+  // 2) ダイス式の計算ヘルパー
   function formatDiceExpression(node) {
     const label = node.querySelector(".p-exp__dice-exp");
     let formula = "";
@@ -269,70 +270,71 @@ function parseLog(text) {
       const nums = label.querySelectorAll(".p-exp__number");
       const op = label.querySelector(".p-exp__operator");
       if (nums.length === 2 && op) {
-        const left = nums[0].textContent.trim();
-        const right = nums[1].textContent.trim();
-        formula = `${left}${op.textContent.trim()}${right}`;
+        formula = `${nums[0].textContent.trim()}${op.textContent.trim()}${nums[1].textContent.trim()}`;
       }
     }
 
-    const pipEls = node.querySelectorAll(".p-exp__pip");
-    const total = Array.from(pipEls)
+    const total = Array.from(node.querySelectorAll(".p-exp__pip"))
       .map((el) => parseInt(el.textContent.trim(), 10) || 0)
-      .reduce((sum, n) => sum + n, 0);
+      .reduce((s, n) => s + n, 0);
 
-    return {
-      formula,
-      result: String(total),
-    };
+    return { formula, result: String(total) };
   }
 
+  // 3) 各記事を走査して出力用に整形
+  const articles = doc.querySelectorAll("article.p-bl__session-post");
   articles.forEach((a) => {
     const span =
       a.querySelector("span.act_role_as") || a.querySelector(".p-sp__name");
     const spanName = span ? span.textContent.trim() : "";
+    const spanColor = span
+      ? span.style.color || getComputedStyle(span).color
+      : "";
 
-    let spanColor = "";
-    if (span) {
-      spanColor =
-        span.style.color || getComputedStyle(span).getPropertyValue("color");
-    }
+    // — ダイス式がある場合
+    const exprs = a.querySelectorAll(".p-expression");
+    exprs.forEach((expr) => {
+      const { formula, result } = formatDiceExpression(expr);
+      if (!formula) return; // ラベルが取れなかった場合はスキップ
 
-    const diceLabel = a.querySelector(".p-exp__dice-exp");
-    const pipEls = a.querySelectorAll(".p-exp__pip");
-    const p = a.querySelector("p");
-    const spokenDiv = a.querySelector(".p-sp__spoken-container");
+      const dl = out.createElement("dl");
+      dl.className = "main tab_2";
+      if (spanColor) dl.style.color = spanColor;
 
-    let html = "";
-    let cls = "zatsudan";
+      const dt = out.createElement("dt");
+      dt.textContent = spanName;
+      const dd = out.createElement("dd");
+      dd.textContent = `${formula}=${result}`;
 
-    if (diceLabel && pipEls.length > 0) {
-      cls = "main tab_2";
-      const { formula, result } = formatDiceExpression(a);
-      html = `${formula}=${result}`;
-    } else if (p && p.textContent.trim()) {
-      html = p.innerHTML.trim();
-      if (spokenDiv || spanName === "GM") {
-        cls = "main";
+      dl.append(dt, dd);
+      wrapper.appendChild(dl);
+    });
+
+    // — ダイス式がまったくなければ通常の発言として処理
+    if (exprs.length === 0) {
+      const p = a.querySelector("p");
+      const spokenDiv = a.querySelector(".p-sp__spoken-container");
+      if (p && p.textContent.trim()) {
+        let cls = "zatsudan";
+        if (spokenDiv || spanName === "GM") cls = "main";
+
+        const dl = out.createElement("dl");
+        dl.className = cls;
+        if (spanColor) dl.style.color = spanColor;
+
+        const dt = out.createElement("dt");
+        dt.textContent = spanName;
+        const dd = out.createElement("dd");
+        dd.innerHTML = p.innerHTML.trim();
+
+        dl.append(dt, dd);
+        wrapper.appendChild(dl);
       }
-    } else {
-      return;
     }
-
-    const dl = out.createElement("dl");
-    dl.className = cls;
-    if (spanColor) dl.style.color = spanColor;
-
-    const dt = out.createElement("dt");
-    dt.textContent = spanName;
-    const dd = out.createElement("dd");
-    dd.innerHTML = html;
-
-    dl.appendChild(dt);
-    dl.appendChild(dd);
-    wrapper.appendChild(dl);
   });
 
-  outputHTML = "<!DOCTYPE html>\n" + out.documentElement.outerHTML;
+  // 4) 完成した HTML を文字列で返す
+  return "<!DOCTYPE html>\n" + out.documentElement.outerHTML;
 }
 
 function handleFix() {
