@@ -262,34 +262,28 @@ function parseLog(text) {
   const wrapper = out.body.querySelector(".wrapper");
   const articles = doc.querySelectorAll("article.p-bl__session-post");
 
-  function formatDiceExpression(exprNode) {
-    if (!exprNode) return { formula: "", result: "" };
-
-    // --- ダイス式の抽出 ---
-    const label = exprNode.querySelector(".p-exp__dice-exp");
+  function formatDiceExpression(node) {
+    const label = node.querySelector(".p-exp__dice-exp");
     let formula = "";
     if (label) {
       const nums = label.querySelectorAll(".p-exp__number");
       const op = label.querySelector(".p-exp__operator");
       if (nums.length === 2 && op) {
         const left = nums[0].textContent.trim();
-        const operator = op.textContent.trim();
         const right = nums[1].textContent.trim();
-        formula = `${left}${operator}${right}`; // 例: "2D8"
+        formula = `${left}${op.textContent.trim()}${right}`;
       }
     }
 
-    // --- 出目の抽出（複数ロール対応） ---
-    let result = "";
-    const pipEls = exprNode.querySelectorAll(".p-exp__pip");
-    if (pipEls.length > 0) {
-      const total = Array.from(pipEls)
-        .map((el) => parseInt(el.textContent.trim(), 10) || 0)
-        .reduce((sum, n) => sum + n, 0);
-      result = String(total); // 例: "7"
-    }
+    const pipEls = node.querySelectorAll(".p-exp__pip");
+    const total = Array.from(pipEls)
+      .map((el) => parseInt(el.textContent.trim(), 10) || 0)
+      .reduce((sum, n) => sum + n, 0);
 
-    return { formula, result };
+    return {
+      formula,
+      result: String(total),
+    };
   }
 
   articles.forEach((a) => {
@@ -305,7 +299,8 @@ function parseLog(text) {
 
     const p = a.querySelector("p");
     const spokenDiv = a.querySelector(".p-sp__spoken-container");
-    const expr = a.querySelector(".p-expression");
+    const diceLabel = a.querySelector(".p-exp__dice-exp");
+    const pipEls = a.querySelectorAll(".p-exp__pip");
 
     let html = "";
     let cls = "zatsudan";
@@ -314,10 +309,10 @@ function parseLog(text) {
       html = p.innerHTML.trim();
       if (spokenDiv) cls = "main";
       if (spanName === "GM") cls = "main";
-    } else if (expr) {
+    } else if (diceLabel && pipEls.length > 0) {
       cls = "main tab_2";
-      const { formula, result } = formatDiceExpression(expr);
-      html = formula && result ? `${formula}=${result}` : "[ダイス結果不明]";
+      const { formula, result } = formatDiceExpression(a);
+      html = `${formula}=${result}`;
     } else {
       return;
     }
