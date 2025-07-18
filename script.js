@@ -297,31 +297,30 @@ function parseLog(text) {
         span.style.color || getComputedStyle(span).getPropertyValue("color");
     }
 
-    const p = a.querySelector("p");
-    const spokenDiv = a.querySelector(".p-sp__spoken-container");
     const diceLabel = a.querySelector(".p-exp__dice-exp");
     const pipEls = a.querySelectorAll(".p-exp__pip");
+    const p = a.querySelector("p");
+    const spokenDiv = a.querySelector(".p-sp__spoken-container");
 
     let html = "";
     let cls = "zatsudan";
 
-    if (p && p.textContent.trim()) {
-      html = p.innerHTML.trim();
-      if (spokenDiv) cls = "main";
-      if (spanName === "GM") cls = "main";
-    } else if (diceLabel && pipEls.length > 0) {
+    if (diceLabel && pipEls.length > 0) {
       cls = "main tab_2";
       const { formula, result } = formatDiceExpression(a);
       html = `${formula}=${result}`;
+    } else if (p && p.textContent.trim()) {
+      html = p.innerHTML.trim();
+      if (spokenDiv || spanName === "GM") {
+        cls = "main";
+      }
     } else {
       return;
     }
 
     const dl = out.createElement("dl");
-    if (spanColor) {
-      dl.style.color = spanColor;
-    }
     dl.className = cls;
+    if (spanColor) dl.style.color = spanColor;
 
     const dt = out.createElement("dt");
     dt.textContent = spanName;
