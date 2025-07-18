@@ -338,16 +338,19 @@ function parseLog(text) {
 }
 
 function handleFix() {
-  const file = document.getElementById("logFile").files[0];
+  const fileInput = document.getElementById("logFile");
+  const file = fileInput.files[0];
   if (!file) {
     alert("log.html を選択してください");
     return;
   }
+
   const reader = new FileReader();
   reader.onload = () => {
-    parseLog(reader.result);
-    const blob = new Blob([outputHTML], { type: "text/html" });
+    const fixedHtml = parseLog(reader.result);
+    const blob = new Blob([fixedHtml], { type: "text/html" });
     const url = URL.createObjectURL(blob);
+
     const dl = document.getElementById("downloadBtn");
     const filename = file.name.replace(/\.html?$/, "") + "_fixed.html";
     dl.href = url;
