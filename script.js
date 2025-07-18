@@ -251,7 +251,7 @@ function buildOutput(doc) {
   const out = document.implementation.createHTMLDocument(doc.title);
   out.head.innerHTML = `<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>${doc.title}</title><style>${style1}</style><style>${style2}</style>`;
   const body = out.body;
-  body.innerHTML = `<label for="toggle" id="label_toggle">表示/非表示</label><input type="checkbox" id="toggle"><header><label>▽ 非表示にするタブ</label><label for="main"><input type="checkbox" onclick="Hide(this)" id="main">発言</label><label for="zatsudan"><input type="checkbox" onclick="Hide(this)" id="zatsudan">ノーマル</label><label for="tab_0"><input type="checkbox" onclick="Hide(this)" id="tab_0">GM発言</label></header><div class="wrapper"><h1>${doc.title}</h1><h2>セッション開始</h2></div><footer></footer><script>${hideScript}</script>`;
+  body.innerHTML = `<label for="toggle" id="label_toggle">表示/非表示</label><input type="checkbox" id="toggle"><header><label>▽ 非表示にするタブ</label><label for="main"><input type="checkbox" onclick="Hide(this)" id="main">発言</label><label for="zatsudan"><input type="checkbox" onclick="Hide(this)" id="zatsudan">ノーマル</label></header><div class="wrapper"><h1>${doc.title}</h1><h2>セッション開始</h2></div><footer></footer><script>${hideScript}</script>`;
   return out;
 }
 
@@ -265,13 +265,9 @@ function parseLog(text) {
   function formatDiceExpression(exprNode) {
     if (!exprNode) return { formula: "", result: "" };
 
+    // --- ダイス式の抽出 ---
     const label = exprNode.querySelector(".p-exp__dice-exp");
-    const pip = exprNode.querySelector(".p-exp__pip");
-
     let formula = "";
-    let result = "";
-
-    // ダイス式の抽出
     if (label) {
       const nums = label.querySelectorAll(".p-exp__number");
       const op = label.querySelector(".p-exp__operator");
@@ -283,9 +279,17 @@ function parseLog(text) {
       }
     }
 
-    // 出目の抽出
-    if (pip) {
-      result = pip.textContent.trim();
+    // --- 出目の抽出（複数ロール対応） ---
+    const pipEls = exprNode.querySelectorAll(".p-exp__pip");
+    let result = "";
+    if (pipEls.length > 0) {
+      // 各出目を数値化して合計
+      const rolls = Array.from(
+        pipEls,
+        (el) => parseInt(el.textContent.trim(), 10) || 0
+      );
+      const total = rolls.reduce((sum, v) => sum + v, 0);
+      result = total.toString();
     }
     return { formula, result };
   }
@@ -351,7 +355,7 @@ function handleFix() {
     const blob = new Blob([outputHTML], { type: "text/html" });
     const url = URL.createObjectURL(blob);
     const dl = document.getElementById("downloadBtn");
-    const filename = file.name.replace(/\.html?$/, '') + '_fixed.html';
+    const filename = file.name.replace(/\.html?$/, "") + "_fixed.html";
     dl.href = url;
     dl.download = filename;
     dl.classList.remove("d-none");
