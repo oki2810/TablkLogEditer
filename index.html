@@ -20,6 +20,13 @@
     <button class="btn btn-primary" id="fixBtn">修正</button>
     <a class="btn btn-success ms-2 d-none" id="downloadBtn" download>ダウンロード</a>
   </div>
+
+  <!-- 既存の file input と同じあたりに、こんなテキスト入力を追加 -->
+  <label for="blobUrl">結合済みHTMLのURLを貼り付け：</label>
+  <input type="text" id="blobUrl" placeholder="blob:https://…">
+  <button id="fixBtn">ファイルから整形</button>
+  <a id="downloadBtn" class="d-none">ダウンロード</a>
+
   <script src="script.js"></script>
 </body>
 </html>
