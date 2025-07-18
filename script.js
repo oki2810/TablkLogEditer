@@ -373,60 +373,39 @@ function makeDownload(text, name) {
 // ファイルから整形
 function handleFile() {
   const file = document.getElementById("logFile").files[0];
-  if (!file) {
-    alert("log.html を選択してください");
-    return;
-  }
+  if (!file) { alert("log.html を選択してください"); return; }
   const r = new FileReader();
   r.onload = () => makeDownload(r.result, file.name);
   r.readAsText(file);
 }
 
-// URL からフェッチ or iframe 経由で整形
-function handleUrl(url) {
-  if (url.startsWith("blob:")) {
-    // ① Blob URL は iframe で読み込む
-    const iframe = document.createElement("iframe");
-    iframe.style.display = "none";
-    iframe.src = url;
-    document.body.appendChild(iframe);
-
-    iframe.onload = () => {
-      try {
-        // iframe 内の HTML を取り出す
-        const doc = iframe.contentDocument || iframe.contentWindow.document;
-        const html = doc.documentElement.outerHTML;
-        makeDownload(html, url);
-      } catch (e) {
-        alert("Blob URL の読み込みに失敗しました: " + e);
-      } finally {
-        document.body.removeChild(iframe);
-      }
-    };
-    iframe.onerror = (e) => {
-      alert("Blob URL を iframe で開けませんでした");
-      document.body.removeChild(iframe);
-    };
-
-  } else {
-    // ② 通常の HTTP URL は fetch でOK
-    fetch(url)
-      .then(res => {
-        if (!res.ok) throw new Error(res.status);
-        return res.text();
-      })
-      .then(txt => makeDownload(txt, url))
-      .catch(e => alert("URL取得に失敗: " + e));
+// URL からフェッチして整形
+async function handleUrl(url) {
+  try {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(res.status);
+    const txt = await res.text();
+    makeDownload(txt, url);
+  } catch (e) {
+    alert("URL取得に失敗: " + e);
   }
 }
 
 window.addEventListener("DOMContentLoaded", () => {
+  // ① ファイル＋ボタン
   document.getElementById("fixBtn")
     .addEventListener("click", handleFile);
 
+  // ② URL貼り付けだけで自動実行
   document.getElementById("blobUrl")
     .addEventListener("input", e => {
       const u = e.target.value.trim();
-      if (u) handleUrl(u);
+      if (u.startsWith("blob:")) {
+        handleUrl(u);
+      }
     });
+});
+
+window.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("fixBtn").addEventListener("click", handleFix);
 });
