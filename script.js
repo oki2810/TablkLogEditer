@@ -359,53 +359,6 @@ function handleFix() {
   reader.readAsText(file);
 }
 
-function makeDownload(text, name) {
-  parseLog(text); // これで outputHTML がセットされる
-  const blob = new Blob([outputHTML], { type: "text/html" });
-  const url  = URL.createObjectURL(blob);
-  const a    = document.getElementById("downloadBtn");
-  const base = name.replace(/\.html?$/, "");
-  a.href      = url;
-  a.download  = `${base}_fixed.html`;
-  a.classList.remove("d-none");
-}
-
-// ファイルから整形
-function handleFile() {
-  const file = document.getElementById("logFile").files[0];
-  if (!file) { alert("log.html を選択してください"); return; }
-  const r = new FileReader();
-  r.onload = () => makeDownload(r.result, file.name);
-  r.readAsText(file);
-}
-
-// URL からフェッチして整形
-async function handleUrl(url) {
-  try {
-    const res = await fetch(url);
-    if (!res.ok) throw new Error(res.status);
-    const txt = await res.text();
-    makeDownload(txt, url);
-  } catch (e) {
-    alert("URL取得に失敗: " + e);
-  }
-}
-
-window.addEventListener("DOMContentLoaded", () => {
-  // ① ファイル＋ボタン
-  document.getElementById("fixBtn")
-    .addEventListener("click", handleFile);
-
-  // ② URL貼り付けだけで自動実行
-  document.getElementById("blobUrl")
-    .addEventListener("input", e => {
-      const u = e.target.value.trim();
-      if (u.startsWith("blob:")) {
-        handleUrl(u);
-      }
-    });
-});
-
 window.addEventListener("DOMContentLoaded", () => {
   document.getElementById("fixBtn").addEventListener("click", handleFix);
 });
