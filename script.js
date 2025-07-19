@@ -341,8 +341,7 @@ function parseLog(text) {
         ? thresholdEl.textContent.trim()
         : "";
     const outcomeEl = thresholdEl ? thresholdEl.nextElementSibling : null;
-    const rawOutcome = outcomeEl ? outcomeEl.textContent.trim() : "";
-    const outcome = rawOutcome ? " " + rawOutcome : "";
+    const outcome = outcomeEl ? outcomeEl.textContent.trim() : "";
 
     return { formula, result, threshold, outcome };
   }
@@ -374,7 +373,9 @@ function parseLog(text) {
       const dd = out.createElement("dd");
       // 成否判定がある場合は ≦以下と結果文言を付け足す
       if (threshold) {
-        dd.textContent = `${formula}=${result}≦${threshold}${outcome}`;
+        dd.textContent = `${formula}=${result}≦${threshold}${
+          outcome ? " " + outcome : ""
+        }`;
       } else {
         dd.textContent = `${formula}=${result}`;
       }
