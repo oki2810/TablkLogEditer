@@ -341,7 +341,8 @@ function parseLog(text) {
         ? thresholdEl.textContent.trim()
         : "";
     const outcomeEl = thresholdEl ? thresholdEl.nextElementSibling : null;
-    const outcome = outcomeEl ? outcomeEl.textContent.trim() : "";
+    const rawOutcome = outcomeEl ? outcomeEl.textContent.trim() : "";
+    const outcome = rawOutcome ? " " + rawOutcome : "";
 
     return { formula, result, threshold, outcome };
   }
