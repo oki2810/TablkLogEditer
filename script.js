@@ -263,34 +263,70 @@ function parseLog(text) {
   const wrapper = out.body.querySelector(".wrapper");
 
   // ダイス式の計算ヘルパー
-  function formatDiceExpression(node) {
-    // ラベルから「1」「+」「2」などの式を取得
-    const label = node.querySelector(".p-exp__dice-exp");
-    let formula = "";
-    if (label) {
-      const nums = label.querySelectorAll(".p-exp__number");
-      const op = label.querySelector(".p-exp__operator");
-      if (nums.length === 2 && op) {
-        formula = `${nums[0].textContent.trim()}${op.textContent.trim()}${nums[1].textContent.trim()}`;
-      }
-    }
+  function flattenDiceOutcome(expr) {
+    // (1) ベースのダイス式を取得
+    const diceExp = expr.querySelector(".p-exp__dice-exp");
+    const nums = diceExp.querySelectorAll(".p-exp__number");
+    const dOp = diceExp.querySelector(".p-exp__operator").textContent.trim();
+    let formula = `${nums[0].textContent.trim()}${dOp}${nums[1].textContent.trim()}`;
 
-    // パイプ要素をまず取得
-    const pips = node.querySelectorAll(".p-exp__pip");
-    // パイプ要素があれば合算、なければ「=」以降の数値をフォールバックで取得
-    let total = 0;
-    if (pips.length > 0) {
-      total = Array.from(pips)
+    // (2) “≦” 判定用オペレータの有無
+    const hasJudge = Array.from(expr.querySelectorAll(".p-exp__operator")).some(
+      (op) => op.textContent.trim() === "≦"
+    );
+
+    // (3) result を算出：pips があれば合計、なければ “=” の次の数値
+    const pipEls = expr.querySelectorAll(".p-exp__pip");
+    let result;
+    if (pipEls.length > 0) {
+      result = Array.from(pipEls)
         .map((el) => parseInt(el.textContent.trim(), 10) || 0)
         .reduce((sum, n) => sum + n, 0);
     } else {
-      // 「=」以降に表示される .p-exp__number のうち末尾の数値を合計として利用
-      const allNums = node.querySelectorAll(".p-exp__number");
-      const lastNum = allNums[allNums.length - 1];
-      total = lastNum ? parseInt(lastNum.textContent.trim(), 10) || 0 : 0;
+      // = の次の .p-exp__number を最後の一つだけ取得
+      const eqOp = Array.from(expr.querySelectorAll(".p-exp__operator")).find(
+        (op) => op.textContent.trim() === "="
+      );
+      const resEl = eqOp?.nextElementSibling;
+      result =
+        resEl && resEl.matches(".p-exp__number")
+          ? parseInt(resEl.textContent.trim(), 10) || 0
+          : 0;
+    }
+    result = String(result);
+
+    if (!hasJudge) {
+      // (4) 成否判定なし → 修正分を formula にくっつけ
+      let node = diceExp.closest(".p-exp__element").nextElementSibling;
+      while (
+        node &&
+        !(node.matches(".p-exp__operator") && node.textContent.trim() === "=")
+      ) {
+        if (
+          node.matches(".p-exp__operator") ||
+          node.matches(".p-exp__number")
+        ) {
+          formula += node.textContent.trim();
+        }
+        node = node.nextElementSibling;
+      }
+      return { formula, result };
     }
 
-    return { formula, result: String(total) };
+    // (5) “≦” がある場合は閾値と成否を取得
+    const judgeOp = Array.from(expr.querySelectorAll(".p-exp__operator")).find(
+      (op) => op.textContent.trim() === "≦"
+    );
+    const thresholdEl = judgeOp.nextElementSibling;
+    const threshold =
+      thresholdEl && thresholdEl.matches(".p-exp__number")
+        ? thresholdEl.textContent.trim()
+        : "";
+
+    const outcomeEl = thresholdEl.nextElementSibling;
+    const outcome = outcomeEl ? outcomeEl.textContent.trim() : "";
+
+    return { formula, result, threshold, outcome };
   }
 
   // 3) 各記事を走査して出力用に整形
@@ -306,8 +342,9 @@ function parseLog(text) {
     // — ダイス式がある場合
     const exprs = a.querySelectorAll(".p-expression");
     exprs.forEach((expr) => {
-      const { formula, result } = formatDiceExpression(expr);
-      if (!formula) return; // ラベルが取れなかった場合はスキップ
+      // ここを formatDiceExpression ではなく flattenDiceOutcome に置き換え
+      const { formula, result, threshold, outcome } = flattenDiceOutcome(expr);
+      if (!formula) return; // ダイス式が取れなければスキップ
 
       const dl = out.createElement("dl");
       dl.className = "main tab_2";
@@ -315,8 +352,14 @@ function parseLog(text) {
 
       const dt = out.createElement("dt");
       dt.textContent = spanName;
+
       const dd = out.createElement("dd");
-      dd.textContent = `${formula}=${result}`;
+      // 成否判定がある場合は ≦以下と結果文言を付け足す
+      if (threshold) {
+        dd.textContent = `${formula}=${result}≦${threshold}${outcome}`;
+      } else {
+        dd.textContent = `${formula}=${result}`;
+      }
 
       dl.append(dt, dd);
       wrapper.appendChild(dl);
