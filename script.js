@@ -266,37 +266,55 @@ function parseLog(text) {
   function flattenDiceOutcome(expr) {
     // (1) ベースのダイス式を取得
     const diceExp = expr.querySelector(".p-exp__dice-exp");
+    if (!diceExp) return {};
     const nums = diceExp.querySelectorAll(".p-exp__number");
-    const dOp = diceExp.querySelector(".p-exp__operator").textContent.trim();
+    const dOpEl = diceExp.querySelector(".p-exp__operator");
+    const dOp = dOpEl ? dOpEl.textContent.trim() : "";
     let formula = `${nums[0].textContent.trim()}${dOp}${nums[1].textContent.trim()}`;
 
-    // (2) “≦” 判定用オペレータの有無
-    const hasJudge = Array.from(expr.querySelectorAll(".p-exp__operator")).some(
-      (op) => op.textContent.trim() === "≦"
+    // (2) 判定演算子 “≦” の有無
+    const allOps = Array.from(expr.querySelectorAll(".p-exp__operator")).map(
+      (el) => el.textContent.trim()
     );
+    const hasJudge = allOps.includes("≦");
 
-    // (3) result を算出：pips があれば合計、なければ “=” の次の数値
-    const pipEls = expr.querySelectorAll(".p-exp__pip");
-    let result;
+    // (3) result を算出：pip＋修飾子 or “=” の次の数
+    const pipEls = Array.from(expr.querySelectorAll(".p-exp__pip"));
+    let total = 0;
     if (pipEls.length > 0) {
-      result = Array.from(pipEls)
-        .map((el) => parseInt(el.textContent.trim(), 10) || 0)
-        .reduce((sum, n) => sum + n, 0);
+      // pip の合計（IMG は alt、それ以外は textContent）
+      pipEls.forEach((el) => {
+        const v =
+          el.tagName === "IMG"
+            ? parseInt(el.getAttribute("alt"), 10)
+            : parseInt(el.textContent.trim(), 10);
+        total += v || 0;
+      });
+      // “+” / “-” 修飾子を合算
+      Array.from(expr.querySelectorAll(".p-exp__operator")).forEach((opEl) => {
+        const op = opEl.textContent.trim();
+        if (op === "+" || op === "-") {
+          const numEl = opEl.nextElementSibling;
+          if (numEl && numEl.classList.contains("p-exp__number")) {
+            total += parseInt(op + numEl.textContent.trim(), 10);
+          }
+        }
+      });
     } else {
-      // = の次の .p-exp__number を最後の一つだけ取得
+      // pip が無い場合は “=” の次の .p-exp__number
       const eqOp = Array.from(expr.querySelectorAll(".p-exp__operator")).find(
-        (op) => op.textContent.trim() === "="
+        (el) => el.textContent.trim() === "="
       );
-      const resEl = eqOp?.nextElementSibling;
-      result =
+      const resEl = eqOp ? eqOp.nextElementSibling : null;
+      total =
         resEl && resEl.matches(".p-exp__number")
-          ? parseInt(resEl.textContent.trim(), 10) || 0
+          ? parseInt(resEl.textContent.trim(), 10)
           : 0;
     }
-    result = String(result);
+    const result = String(total);
 
     if (!hasJudge) {
-      // (4) 成否判定なし → 修正分を formula にくっつけ
+      // (4) 判定なし → “=” の手前まで残りの修飾子を formula に連結
       let node = diceExp.closest(".p-exp__element").nextElementSibling;
       while (
         node &&
@@ -313,17 +331,16 @@ function parseLog(text) {
       return { formula, result };
     }
 
-    // (5) “≦” がある場合は閾値と成否を取得
+    // (5) 判定あり → 閾値と成否を取得
     const judgeOp = Array.from(expr.querySelectorAll(".p-exp__operator")).find(
-      (op) => op.textContent.trim() === "≦"
+      (el) => el.textContent.trim() === "≦"
     );
-    const thresholdEl = judgeOp.nextElementSibling;
+    const thresholdEl = judgeOp ? judgeOp.nextElementSibling : null;
     const threshold =
       thresholdEl && thresholdEl.matches(".p-exp__number")
         ? thresholdEl.textContent.trim()
         : "";
-
-    const outcomeEl = thresholdEl.nextElementSibling;
+    const outcomeEl = thresholdEl ? thresholdEl.nextElementSibling : null;
     const outcome = outcomeEl ? outcomeEl.textContent.trim() : "";
 
     return { formula, result, threshold, outcome };
