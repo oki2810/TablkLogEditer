@@ -266,7 +266,26 @@ function parseLog(text) {
   function flattenDiceOutcome(expr) {
     // (1) ベースのダイス式を取得
     const diceExp = expr.querySelector(".p-exp__dice-exp");
-    if (!diceExp) return {};
+    if (!diceExp) {
+      // ダイス式が無い場合はそのまま数式として処理
+      const nodes = Array.from(
+        expr.querySelectorAll(".p-exp__number, .p-exp__operator")
+      );
+      let formula = "";
+      let result = "";
+      for (let i = 0; i < nodes.length; i++) {
+        const text = nodes[i].textContent.trim();
+        if (text === "=") {
+          const next = nodes[i + 1];
+          if (next && next.classList.contains("p-exp__number")) {
+            result = next.textContent.trim();
+          }
+          break;
+        }
+        formula += text;
+      }
+      return formula && result ? { formula, result } : {};
+    }
     const nums = diceExp.querySelectorAll(".p-exp__number");
     const dOpEl = diceExp.querySelector(".p-exp__operator");
     const dOp = dOpEl ? dOpEl.textContent.trim() : "";
