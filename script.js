@@ -309,16 +309,36 @@ function parseLog(text) {
             : parseInt(el.textContent.trim(), 10);
         total += v || 0;
       });
-      // “+” / “-” 修飾子を合算
-      Array.from(expr.querySelectorAll(".p-exp__operator")).forEach((opEl) => {
-        const op = opEl.textContent.trim();
-        if (op === "+" || op === "-") {
-          const numEl = opEl.nextElementSibling;
+      // ダイス結果に続く演算子を順次適用
+      let node = diceExp.closest(".p-exp__element").nextElementSibling;
+      while (node) {
+        if (node.matches(".p-exp__operator")) {
+          const op = node.textContent.trim();
+          if (op === "=" || op === "≦") break;
+          const numEl = node.nextElementSibling;
           if (numEl && numEl.classList.contains("p-exp__number")) {
-            total += parseInt(op + numEl.textContent.trim(), 10);
+            const num = parseInt(numEl.textContent.trim(), 10) || 0;
+            switch (op) {
+              case "+":
+                total += num;
+                break;
+              case "-":
+                total -= num;
+                break;
+              case "×":
+                total *= num;
+                break;
+              case "÷":
+                total = Math.floor(total / num);
+                break;
+              default:
+                break;
+            }
+            node = numEl;
           }
         }
-      });
+        node = node.nextElementSibling;
+      }
     } else {
       // pip が無い場合は “=” の次の .p-exp__number
       const eqOp = Array.from(expr.querySelectorAll(".p-exp__operator")).find(
