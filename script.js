@@ -355,11 +355,29 @@ function parseLog(text) {
     const spanColor = span
       ? span.style.color || getComputedStyle(span).color
       : "";
+    // — 通常の発言を先に出力
+    const p = a.querySelector("p");
+    const spokenDiv = a.querySelector(".p-sp__spoken-container");
+    if (p && p.textContent.trim()) {
+      let cls = "zatsudan";
+      if (spokenDiv || spanName === "GM") cls = "main";
 
-    // — ダイス式がある場合
+      const dl = out.createElement("dl");
+      dl.className = cls;
+      if (spanColor) dl.style.color = spanColor;
+
+      const dt = out.createElement("dt");
+      dt.textContent = spanName;
+      const dd = out.createElement("dd");
+      dd.innerHTML = p.innerHTML.trim();
+
+      dl.append(dt, dd);
+      wrapper.appendChild(dl);
+    }
+
+    // — ダイス式がある場合は各式を個別に出力
     const exprs = a.querySelectorAll(".p-expression");
     exprs.forEach((expr) => {
-      // ここを formatDiceExpression ではなく flattenDiceOutcome に置き換え
       const { formula, result, threshold, outcome } = flattenDiceOutcome(expr);
       if (!formula) return; // ダイス式が取れなければスキップ
 
@@ -383,28 +401,6 @@ function parseLog(text) {
       dl.append(dt, dd);
       wrapper.appendChild(dl);
     });
-
-    // — ダイス式がまったくなければ通常の発言として処理
-    if (exprs.length === 0) {
-      const p = a.querySelector("p");
-      const spokenDiv = a.querySelector(".p-sp__spoken-container");
-      if (p && p.textContent.trim()) {
-        let cls = "zatsudan";
-        if (spokenDiv || spanName === "GM") cls = "main";
-
-        const dl = out.createElement("dl");
-        dl.className = cls;
-        if (spanColor) dl.style.color = spanColor;
-
-        const dt = out.createElement("dt");
-        dt.textContent = spanName;
-        const dd = out.createElement("dd");
-        dd.innerHTML = p.innerHTML.trim();
-
-        dl.append(dt, dd);
-        wrapper.appendChild(dl);
-      }
-    }
   });
 
   // 4) 完成した HTML を文字列で返す
