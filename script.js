@@ -249,7 +249,13 @@ let outputHTML = "";
 
 function buildOutput(doc) {
   const out = document.implementation.createHTMLDocument(doc.title);
-  out.head.innerHTML = `<meta charset="UTF-8">
+  out.head.innerHTML = `<script>
+    if (!window.location.href.includes('forceReloaded')) {
+      const sep = window.location.href.includes('?') ? '&' : '?';
+      window.location.href = window.location.href + sep + 'forceReloaded=1';
+    }
+  </script>
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
